@@ -40,39 +40,45 @@ static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 	priv_data.socket = NULL;
 }
 
-
 static void on_data_recieved(sap_socket_h socket,
 			     unsigned short int channel_id,
 			     unsigned int payload_length,
 			     void *buffer,
 			     void *user_data){
+
+
+	char *buffer_send;		// buffer including HRM data
+	char *msg;			// another buffer (HRM + time info)
+
+	////////////////////////// real time info //////////////////////////
 	time_t raw_time;
 	struct tm* time_info;
 	char timestamp[30];
 
-dlog_print(DLOG_INFO, TAG, "received data: %s, len:%d",buffer,payload_length);
-		char *buffer_send;
-		if(HRM_data < 1.0){
-			buffer_send = (char *) malloc(strlen("Not Ready HRM"));
-			strcpy(buffer_send, "Not Ready HRM");
-			payload_length = strlen(buffer_send);
-		} else {
-			buffer_send = (char *) malloc(sizeof(HRM_data));
-			sprintf(buffer_send, "%.1lf", HRM_data);
-			payload_length = strlen(buffer_send);
-		}
-
-		dlog_print(DLOG_INFO,LOG_TAG,"HRM:%lf, send data : %s",HRM_data, buffer_send);
-		sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, buffer_send);
-		free(buffer_send);
-
 	time(&raw_time);
 	time_info = localtime(&raw_time);
 	sprintf (timestamp, "Time: %d:%s%d:%d", time_info->tm_hour, time_info->tm_min<10? "0" : "", time_info->tm_min,time_info->tm_sec);
+	////////////////////////// real time info //////////////////////////
 
-	char *msg = g_strdup_printf("%s%s", (char *)buffer,timestamp);
+dlog_print(DLOG_INFO, TAG, "received data: %s, len:%d",buffer,payload_length);
 
-	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID,strlen(msg), msg);
+
+	if(HRM_data < 1.0){									//if HR Sensor is not ready
+		buffer_send = (char *) malloc(strlen("Not Ready HRM"));
+		strcpy(buffer_send, "Not Ready HRM");
+	} else {
+		buffer_send = (char *) malloc(sizeof(HRM_data));
+		sprintf(buffer_send, "%.1lf", HRM_data);
+	}
+
+	msg = g_strdup_printf("%s\t%s", (char *)buffer_send,timestamp);				// msg = HRM data + time info
+	payload_length = strlen(msg);
+
+dlog_print(DLOG_INFO,LOG_TAG,"HRM:%lf, send data : %s",HRM_data, msg);
+
+	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);	// send the buffer to Android App
+	free(buffer_send);
+	//sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID,strlen(msg), msg);
 	g_free(msg);
 }
 
