@@ -1,9 +1,9 @@
 #include "helloaccessory.h"
 #include "main_app.h"
+#include "sap.h"					// originally <sap.h>
 #include <sensor.h>
-#include <sap.h>
 
-#define BUFLEN 200
+#define HELLO_ACC_CHANNELID 104		// should be modified later (duplicated)
 
 Evas_Object *GLOBAL_DEBUG_BOX;
 Evas_Object *start, *stop;
@@ -11,25 +11,37 @@ Evas_Object *conform;
 sensor_listener_h listener;
 Evas_Object *event_label;
 
-double HRM_data;
+int hrm_data[BUFLEN] = {};
+static int i = 0;
+
+extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
-    // Select a specific sensor with a sensor handle
+	// Select a specific sensor with a sensor handle
     sensor_type_e type;
     sensor_get_type(sensor, &type);
 
     switch (type) {
     case SENSOR_HRM:
-    	HRM_data = (double)event->values[0];
-    	dlog_print(DLOG_INFO, LOG_TAG, "HRM : %lf" ,HRM_data);
-    	dlog_print(DLOG_INFO,LOG_TAG,"%d",event->values[0]);
-    	char a[100];
-    	sprintf(a,"%.1f", event->values[0]);
-    	elm_object_text_set(event_label, a);
-    	break;
+		if(i < BUFLEN){
+			//unsigned long long timestamp = event->timestamp;
+			hrm_data[i] = (int) event->values[0];
+			dlog_print(DLOG_INFO, LOG_TAG, "hrm_data[%d] : %d",i ,hrm_data[i]);
+			i++;
+
+			// print the value in monitor
+			char a[100];
+			sprintf(a,"%.1f", event->values[0]);
+			elm_object_text_set(event_label, a);
+		} else if (i >= BUFLEN){
+			// if buffer is full, than send the buffer to the consumer
+			on_data_received(socket, HELLO_ACC_CHANNELID);
+			i = 0;
+		}
+		break;
     default:
-        dlog_print(DLOG_ERROR, LOG_TAG, "Not an HRM event");
+    	dlog_print(DLOG_ERROR, LOG_TAG, "Not an HRM event");
     }
 }
 
@@ -91,7 +103,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_create_listener");
 
-    int min_interval = 0;
+    int min_interval = 100;
     error = sensor_get_min_interval(sensor, &min_interval);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_interval error: %d", error);

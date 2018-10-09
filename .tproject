@@ -2,7 +2,7 @@
 <tproject xmlns="http://www.tizen.org/tproject">
     <platforms>
         <platform>
-            <name>wearable-3.0</name>
+            <name>wearable-2.3.2</name>
         </platform>
     </platforms>
     <package>

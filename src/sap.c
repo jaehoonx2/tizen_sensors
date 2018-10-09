@@ -7,8 +7,6 @@
 #define HELLO_ACC_ASPID "/sample/hello"
 #define HELLO_ACC_CHANNELID 104
 
-extern double HRM_data;
-
 struct priv {
 	sap_agent_h agent;
 	sap_socket_h socket;
@@ -40,46 +38,33 @@ static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 	priv_data.socket = NULL;
 }
 
-static void on_data_recieved(sap_socket_h socket,
-			     unsigned short int channel_id,
-			     unsigned int payload_length,
-			     void *buffer,
-			     void *user_data){
+void on_data_received(sap_socket_h socket, unsigned short int channel_id){
 
+		unsigned int payload_length;
+		int *buffer_send;																				// buffer to be sent to consumer
+		char *msg;																						// error msg to be sent to consumer
 
-	char *buffer_send;		// buffer including HRM data
-	char *msg;			// another buffer (HRM + time info)
+		int i;																							// index for copying buffer
 
-	////////////////////////// real time info //////////////////////////
-	time_t raw_time;
-	struct tm* time_info;
-	char timestamp[30];
+		//	there is duplicated part in the conditional statement so that additional revision is needed
+		if( sizeof(hrm_data)/sizeof(int) < BUFLEN ){
+			msg = (char *) malloc(strlen("Not Ready HRM data"));
+			strcpy(msg, "Not Ready HRM data");
 
-	time(&raw_time);
-	time_info = localtime(&raw_time);
-	sprintf (timestamp, "Time: %d:%s%d:%d", time_info->tm_hour, time_info->tm_min<10? "0" : "", time_info->tm_min,time_info->tm_sec);
-	////////////////////////// real time info //////////////////////////
+			payload_length = strlen(msg);
+			sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);			// send the buffer to the consumer
+			free(msg);
+		} else {
+			buffer_send = (int *) malloc(sizeof(hrm_data));
 
-dlog_print(DLOG_INFO, TAG, "received data: %s, len:%d",buffer,payload_length);
-
-
-	if(HRM_data < 1.0){									//if HR Sensor is not ready
-		buffer_send = (char *) malloc(strlen("Not Ready HRM"));
-		strcpy(buffer_send, "Not Ready HRM");
-	} else {
-		buffer_send = (char *) malloc(sizeof(HRM_data));
-		sprintf(buffer_send, "%.1lf", HRM_data);
-	}
-
-	msg = g_strdup_printf("%s\t%s", (char *)buffer_send,timestamp);				// msg = HRM data + time info
-	payload_length = strlen(msg);
-
-dlog_print(DLOG_INFO,LOG_TAG,"HRM:%lf, send data : %s",HRM_data, msg);
-
-	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);	// send the buffer to Android App
-	free(buffer_send);
-	//sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID,strlen(msg), msg);
-	g_free(msg);
+			for(i = 0; i < BUFLEN; i++){
+				buffer_send[i] = hrm_data[i];
+				dlog_print(DLOG_INFO, LOG_TAG, "buffer_send[%d] : %d",i ,buffer_send[i]);
+			}
+			payload_length = sizeof(sizeof(int)*BUFLEN);
+			sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, (void *) buffer_send);	// send the buffer to the consumer
+			free(buffer_send);
+		}
 }
 
 static void on_service_connection_requested(sap_peer_agent_h peer_agent,
@@ -93,7 +78,7 @@ static void on_service_connection_requested(sap_peer_agent_h peer_agent,
 	sap_peer_agent_set_service_connection_terminated_cb
 		(priv_data.peer_agent, on_service_connection_terminated, user_data);
 
-	sap_socket_set_data_received_cb(socket, on_data_recieved, peer_agent);
+	sap_socket_set_data_received_cb(socket, on_data_received, peer_agent);
 
 	sap_peer_agent_accept_service_connection(peer_agent);
 
