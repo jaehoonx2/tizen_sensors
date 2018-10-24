@@ -41,31 +41,29 @@ static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 void on_data_received(sap_socket_h socket, unsigned short int channel_id){
 
 		unsigned int payload_length;
-		int *buffer_send;																				// buffer to be sent to consumer
-		char *msg;																						// error msg to be sent to consumer
 
-		int i;																							// index for copying buffer
-
-		//	there is duplicated part in the conditional statement so that additional revision is needed
-		if( sizeof(hrm_data)/sizeof(int) < BUFLEN ){
-			msg = (char *) malloc(strlen("Not Ready HRM data"));
+		if( sizeof(hrm_data)/sizeof(char) < BUFLEN ){
+			char *msg = (char *) malloc(strlen("Not Ready HRM data"));
 			strcpy(msg, "Not Ready HRM data");
 
 			payload_length = strlen(msg);
-			sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);			// send the buffer to the consumer
+			sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);
+
 			free(msg);
 		} else {
-			buffer_send = (int *) malloc(sizeof(hrm_data));
+//			char *buffer_send = (char *) malloc(sizeof(hrm_data));
+//			int j= 0;
+//			for(j = 0; j < BUFLEN; i++){
+//				buffer_send[j] = hrm_data[j];
+//				dlog_print(DLOG_INFO, LOG_TAG, "buffer_send[%d] : %d",j ,buffer_send[j]);
+//			}
 
-			for(i = 0; i < BUFLEN; i++){
-				buffer_send[i] = hrm_data[i];
-				dlog_print(DLOG_INFO, LOG_TAG, "buffer_send[%d] : %d",i ,buffer_send[i]);
-			}
-			payload_length = sizeof(sizeof(int)*BUFLEN);
-			sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, (void *) buffer_send);	// send the buffer to the consumer
-			free(buffer_send);
+			payload_length = BUFLEN;
+			sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, hrm_data);	// send the buffer to the consumer
+
 		}
 }
+
 
 static void on_service_connection_requested(sap_peer_agent_h peer_agent,
 					    sap_socket_h socket,

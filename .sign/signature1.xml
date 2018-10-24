@@ -4,11 +4,11 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="author-signature.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>3tDOT9B5B6I4wPkfLJkC8vrIyMd5lXsYcl4SVJdQ94Q=</DigestValue>
+<DigestValue>cX23LRQ4BZ0Y8hJPvMrlyD7K4yYvfd86wQgFjt94GhY=</DigestValue>
 </Reference>
 <Reference URI="bin%2Fhrmsensorapp">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>5QeIR20gyeDjbRfX3T+dgP22DMQLjC10UhBFD4hyN18=</DigestValue>
+<DigestValue>6PbAZ7go5RFcgHFkeT85bQJz9nZ+xQyAKDymTixote4=</DigestValue>
 </Reference>
 <Reference URI="lib%2F.gitkeep">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -35,11 +35,11 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-cS5lhAxPcQRXRpljeOKyxgEnkiDfzCvTP6GofI9PH6sJ2GtNnJCd0ynj9rr30CtHoMclj+pVjPS7
-OCxSKHy6mAZdI808dd5igwjHI2exWJojwmv4nnkPEekGbKS3FmirU5jGMFl1mQmBk1F3LWs9mq5r
-1oeOYUSpkZNjiPfO3x8vyGFVIgLrRA4m35JiCdzI9x3Ezj9obi3L6I/2pT5SUVEJb0aaDn4vA2Oh
-IVt670EPHiSCQZNmu4cToxxLH3zjDoU12Ac96lHkGoyN6lXO6KknTlS8oI9QHanSQK5YhzLVzAtx
-TjCLGUDBlJVHsgl5rE4SAYRDyv7dg8MMv3u8AQ==
+TC1w5ZOU8/L/jghK6KXSEmqQ8pcnALwqOw0sxEQ3/E2uPRbWWL6hjfQrbwACCyiqWDM6ycTjy3ju
+vB0t5fH0L9x093K7qyM+4tXa3AXwyH87s+ia+4KhComilX4dWbJWUtppIgfdzK9mj0DW5+6n2G8N
+CenEzZB0BHfqBVxbSvY80COigDRvdzcxBYMR6XPidLQPW1aevIiJ/RbyB/WjVk98GjMXklRgbtv+
+4k5fhsTP56YNybMjcppoPEMACLCnfLABAd7q+culZHKQST/0IqNZOTUBaoO2OdNoNtK8cdqFDqbw
+sAMllMprwjsEW7Zmoko4z7CnNn3iPRNHMC7Rdw==
 </SignatureValue>
 <KeyInfo>
 <X509Data>

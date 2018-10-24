@@ -11,7 +11,8 @@ Evas_Object *conform;
 sensor_listener_h listener;
 Evas_Object *event_label;
 
-int hrm_data[BUFLEN] = {};
+char hrm_data[BUFLEN] = {};
+unsigned long long timestamp;
 static int i = 0;
 
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
@@ -25,14 +26,14 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
     switch (type) {
     case SENSOR_HRM:
 		if(i < BUFLEN){
-			//unsigned long long timestamp = event->timestamp;
-			hrm_data[i] = (int) event->values[0];
+			// unsigned long long timestamp = event->timestamp;					structure array later
+			hrm_data[i] = (char) event->values[0];
 			dlog_print(DLOG_INFO, LOG_TAG, "hrm_data[%d] : %d",i ,hrm_data[i]);
 			i++;
 
 			// print the value in monitor
 			char a[100];
-			sprintf(a,"%.1f", event->values[0]);
+			sprintf(a,"%d", event->values[0]);
 			elm_object_text_set(event_label, a);
 		} else if (i >= BUFLEN){
 			// if buffer is full, than send the buffer to the consumer
@@ -103,7 +104,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_create_listener");
 
-    int min_interval = 100;
+    int min_interval = 0;
     error = sensor_get_min_interval(sensor, &min_interval);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_interval error: %d", error);
@@ -131,7 +132,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
-    error = sensor_listener_set_interval(listener, 100);
+    error = sensor_listener_set_interval(listener, 1000);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error);
         return;
