@@ -1,7 +1,7 @@
-# Tizen_Wearable_HR_transferring_app
+# tizen_hr
 * A Tizen wearable application that retrieves HR data from a device and transfers into Android application (HelloAccessory Consumer)
 * Samsung Gear Fit2 Pro is used in the project.
-* However, you may use other Tizen wearable devices if the devices support Tizen 3.0 at least.
+* However, you may use other Tizen wearable devices if the devices support Tizen 2.3.2 at least.
 
 # Collaborator
 This project is owned by jaehoonx2 and kimyoungeun
