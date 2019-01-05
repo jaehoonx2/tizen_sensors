@@ -48,7 +48,6 @@ void on_data_received(sap_socket_h socket, unsigned short int channel_id){
         struct tm* time_info; //test
         time(&raw_time); //test
         time_info = localtime(&raw_time); //test
-
         int len=snprintf (d1.time_data,0, "%s%d:%s%d:%s%d", time_info->tm_hour<10? "0" : "",time_info->tm_hour, time_info->tm_min<10? "0" : "", time_info->tm_min,time_info->tm_sec<10? "0" : "",time_info->tm_sec);
         d1.time_data=malloc(len+1);
         sprintf(d1.time_data,"%s%d:%s%d:%s%d",time_info->tm_hour<10? "0" : "", time_info->tm_hour, time_info->tm_min<10? "0" : "", time_info->tm_min,time_info->tm_sec<10? "0" : "",time_info->tm_sec);
@@ -62,8 +61,8 @@ void on_data_received(sap_socket_h socket, unsigned short int channel_id){
           free(msg);
        }
         else {
-          d1.sum= g_strdup_printf("%d\t%s\t%.1lf\t%.1lf\t%.1lf", d1.hrm_data, d1.time_data, d1.accel_data[0], d1.accel_data[1], d1.accel_data[2]);//test
-          //d1.sum= g_strdup_printf("%d\t%s", d1.hrm_data, d1.time_data);
+          //d1.sum= g_strdup_printf("%d\t%s\t%.1lf\t%.1lf\t%.1lf", d1.hrm_data, d1.time_data, d1.accel_data[0], d1.accel_data[1], d1.accel_data[2]);//test
+          d1.sum= g_strdup_printf("%d %s %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf", d1.hrm_data, d1.time_data, d1.accel_data[0], d1.accel_data[1], d1.accel_data[2], d1.gyro_data[0], d1.gyro_data[1], d1.gyro_data[2]);
           payload_length = strlen(d1.sum);
           sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, d1.sum);
           dlog_print(DLOG_INFO, LOG_TAG, "%s",d1.sum); //test
