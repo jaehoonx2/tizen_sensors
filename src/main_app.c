@@ -1,51 +1,52 @@
 #include "helloaccessory.h"
 #include "main_app.h"
-#include "sap.h"					// originally <sap.h>
+#include "sap.h"               // originally <sap.h>
 #include <sensor.h>
+#include <string.h>
 
-#define HELLO_ACC_CHANNELID 104		// should be modified later (duplicated)
+#define HELLO_ACC_CHANNELID 104      // should be modified later (duplicated)
 
 Evas_Object *GLOBAL_DEBUG_BOX;
 Evas_Object *start, *stop;
 Evas_Object *conform;
 sensor_listener_h listener;
+sensor_listener_h listener1; //추가
 Evas_Object *event_label;
 
-char hrm_data[BUFLEN] = {};
-unsigned long long timestamp;
-static int i = 0;
-
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
+extern struct Data d1;
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
-	// Select a specific sensor with a sensor handle
+   // Select a specific sensor with a sensor handle
     sensor_type_e type;
     sensor_get_type(sensor, &type);
 
     switch (type) {
     case SENSOR_HRM:
-		if(i < BUFLEN){
-			// unsigned long long timestamp = event->timestamp;					structure array later
-			hrm_data[i] = (char) event->values[0];
-			dlog_print(DLOG_INFO, LOG_TAG, "hrm_data[%d] : %d",i ,hrm_data[i]);
-			i++;
+    	 d1.hrm_data = event->values[0];
+         dlog_print(DLOG_INFO, LOG_TAG, "hr:%d",d1.hrm_data);
 
-			// print the value in monitor
-			char a[100];
-			sprintf(a,"%d", event->values[0]);
-			elm_object_text_set(event_label, a);
-		} else if (i >= BUFLEN){
-			// if buffer is full, than send the buffer to the consumer
-			on_data_received(socket, HELLO_ACC_CHANNELID);
-			i = 0;
-		}
-		break;
+         // print the value in monitor
+         char a[100];
+         sprintf(a,"%.0f", event->values[0]);
+         elm_object_text_set(event_label, a);
+
+         //on_data_received(socket, HELLO_ACC_CHANNELID);
+        break;
+
+    case SENSOR_ACCELEROMETER:
+       	for(int i = 0; i < 3; i++){
+       		d1.accel_data[i] = event->values[i];
+       	}
+       	dlog_print(DLOG_INFO, LOG_TAG, "x:%.1lf\ty:%.1lf\tz:%.1lf" , d1.accel_data[0], d1.accel_data[1], d1.accel_data[2]);
+        on_data_received(socket, HELLO_ACC_CHANNELID);
+       	break;
+
     default:
-    	dlog_print(DLOG_ERROR, LOG_TAG, "Not an HRM event");
+       dlog_print(DLOG_ERROR, LOG_TAG, "Not an Sensor event");
     }
 }
-
 void _sensor_accuracy_changed_cb(sensor_h sensor, unsigned long long timestamp,
                                  sensor_data_accuracy_e accuracy, void *data)
 {
@@ -55,11 +56,16 @@ void _sensor_accuracy_changed_cb(sensor_h sensor, unsigned long long timestamp,
 void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 {
     void *user_data = NULL;
+    void *user_data1 = NULL;
     char out[100];
+    char out1[100]; //추가
 
     // Retrieving a Sensor
     sensor_type_e type = SENSOR_HRM;
     sensor_h sensor;
+
+    sensor_type_e type1 = SENSOR_ACCELEROMETER; //추가
+    sensor_h sensor1; //추가
 
     bool supported;
     int error = sensor_is_supported(type, &supported);
@@ -68,16 +74,34 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
         return;
     }
 
+    bool supported1; //추가
+        int error1 = sensor_is_supported(type1, &supported1);
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_is_supported error: %d", error1);
+            return;
+        }
+
     if(supported)
     {
-    	dlog_print(DLOG_DEBUG, LOG_TAG, "HRM is%s supported", supported ? "" : " not");
-    	sprintf(out,"HRM is%s supported", supported ? "" : " not");
-    	elm_object_text_set(event_label, out);
+       dlog_print(DLOG_DEBUG, LOG_TAG, "HRM is%s supported", supported ? "" : " not");
+       sprintf(out,"HRM is%s supported", supported ? "" : " not");
+       elm_object_text_set(event_label, out);
     }
+
+    if(supported1) //추가
+       {
+          dlog_print(DLOG_DEBUG, LOG_TAG, "ACCELEROMETER is%s supported", supported1 ? "" : " not");
+          sprintf(out1,"ACCELEROMETER is%s supported", supported1 ? "" : " not");
+          elm_object_text_set(event_label, out1);
+       }
+
 
     // Get sensor list
     int count;
     sensor_h *list;
+
+    int count1; //추가
+    sensor_h *list1; //추가
 
     error = sensor_get_sensor_list(type, &list, &count);
     if (error != SENSOR_ERROR_NONE) {
@@ -87,6 +111,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
         free(list);
     }
 
+
     error = sensor_get_default_sensor(type, &sensor);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_default_sensor error: %d", error);
@@ -94,6 +119,22 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_get_default_sensor");
+
+    error1 = sensor_get_sensor_list(type1, &list1, &count1); //추가
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_sensor_list error: %d", error1);
+       } else {
+           dlog_print(DLOG_DEBUG, LOG_TAG, "Number of sensors: %d", count1);
+           free(list1);
+       }
+
+       error1 = sensor_get_default_sensor(type1, &sensor1);
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_default_sensor error: %d", error1);
+           return;
+       }
+
+       dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_get_default_sensor");
 
     // Registering a Sensor Event
     error = sensor_create_listener(sensor, &listener);
@@ -113,6 +154,24 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum interval of the sensor: %d", min_interval);
 
+    error1 = sensor_create_listener(sensor1, &listener1); //추가
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_create_listener error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_create_listener");
+
+        int min_interval1 = 0;
+        error1 = sensor_get_min_interval(sensor1, &min_interval1);
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_interval error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum interval of the sensor: %d", min_interval1);
+
+
 
     // Callback for sensor value change
     error = sensor_listener_set_event_cb(listener, min_interval, on_sensor_event, user_data);
@@ -123,6 +182,15 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_event_cb");
 
+
+    error1 = sensor_listener_set_event_cb(listener1, min_interval1, on_sensor_event, user_data1); //추가
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_event_cb error: %d", error1);
+           return;
+       }
+
+       dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_event_cb");
+
     // Registering the Accuracy Changed Callback
     error = sensor_listener_set_accuracy_cb(listener, _sensor_accuracy_changed_cb, user_data);
     if (error != SENSOR_ERROR_NONE) {
@@ -132,7 +200,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
-    error = sensor_listener_set_interval(listener, 1000);
+    error = sensor_listener_set_interval(listener, 500);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error);
         return;
@@ -156,6 +224,40 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_start");
 
+    //추가
+    error1 = sensor_listener_set_accuracy_cb(listener1, _sensor_accuracy_changed_cb, user_data1);
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_accuracy_cb error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
+
+        error1 = sensor_listener_set_interval(listener1, 500);
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_intervals");
+
+        error1 = sensor_listener_set_option(listener1, SENSOR_OPTION_ALWAYS_ON);
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_option error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_option");
+
+        error1 = sensor_listener_start(listener1);
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_start error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_start");
+
+
     sensor_event_s event;
     error = sensor_listener_read_data(listener, &event);
     if (error != SENSOR_ERROR_NONE) {
@@ -164,24 +266,48 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
         return;
     }
 
+    sensor_event_s event1; //추가
+       error1 = sensor_listener_read_data(listener1, &event1);
+       if (error1 != SENSOR_ERROR_NONE) {
+
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_read_data error: %d", error1);
+           return;
+       }
+
+
     switch (type) {
 
     case SENSOR_HRM:
-    	dlog_print(DLOG_INFO, LOG_TAG, "%f" , event.values[0]);
-    	sprintf(out,"%f", event.values[0]);
-    	elm_object_text_set(event_label, out);
+       dlog_print(DLOG_INFO, LOG_TAG, "%f" , event.values[0]);
+       sprintf(out,"%f", event.values[0]);
+       elm_object_text_set(event_label, out);
+       break;
+
+    case SENSOR_ACCELEROMETER: //추가
+        dlog_print(DLOG_INFO, LOG_TAG, " X:%.1lf Y:%.1lf Z:%.1lf" , event.values[0], event.values[1], event.values[2]);
+       sprintf(out1,"X:%.1lf Y:%.1lf Z:%.1lf", event.values[0], event.values[1], event.values[2]);
+        elm_object_text_set(event_label, out1);
         break;
+
     default:
-        dlog_print(DLOG_ERROR, LOG_TAG, "Not an HRM event");
+        dlog_print(DLOG_ERROR, LOG_TAG, "Not an Sensor event");
     }
 
     dlog_print(DLOG_DEBUG, LOG_TAG, out);
+    dlog_print(DLOG_DEBUG, LOG_TAG, out1); //추가
 
     char *name = NULL;
     char *vendor = NULL;
     float min_range = 0.0;
     float max_range = 220.0;
     float resolution = 0.0;
+
+
+    char *name1 = NULL; //추가
+    char *vendor1 = NULL; //추가
+    float min_range1 = -19.6; //추가
+    float max_range1 = 19.6; //추가
+    float resolution1 = 0.0; //추가
 
     error = sensor_get_name(sensor, &name);
     if (error != SENSOR_ERROR_NONE) {
@@ -192,21 +318,46 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor name: %s", name);
     free(name);
 
+    error1 = sensor_get_name(sensor1, &name1); //추가
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_name error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor name: %s", name1);
+        free(name1);
+
+
     error = sensor_get_vendor(sensor, &vendor);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_vendor error: %d", error);
         return;
     }
 
-
     dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor vendor: %s", vendor);
     free(vendor);
+
+    error1 = sensor_get_vendor(sensor1, &vendor1); //추가
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_vendor error: %d", error1);
+           return;
+       }
+
+       dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor vendor: %s", vendor1);
+       free(vendor1);
+
 
     error = sensor_get_type(sensor, &type);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_type error: %d", error);
         return;
     }
+
+    error1 = sensor_get_type(sensor1, &type1); //추가
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_type error: %d", error1);
+           return;
+       }
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor type: %s",
             type == SENSOR_ACCELEROMETER               ? "Accelerometer"
@@ -236,6 +387,15 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum range of the sensor: %f", min_range);
 
+
+    error1 = sensor_get_min_range(sensor1, &min_range1); //추가
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_range error: %d", error1);
+           return;
+       }
+
+       dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum range of the sensor: %f", min_range1);
+
     error = sensor_get_max_range(sensor, &max_range);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_max_range error: %d", error);
@@ -243,6 +403,15 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
 
     dlog_print(DLOG_DEBUG, LOG_TAG, "Maximum range of the sensor: %f", max_range);
+
+
+    error1 = sensor_get_max_range(sensor1, &max_range1); //추가
+       if (error1 != SENSOR_ERROR_NONE) {
+           dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_max_range error: %d", error1);
+           return;
+       }
+
+       dlog_print(DLOG_DEBUG, LOG_TAG, "Maximum range of the sensor: %f", max_range1);
 
     error = sensor_get_resolution(sensor, &resolution);
     if (error != SENSOR_ERROR_NONE) {
@@ -254,6 +423,20 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     elm_object_disabled_set(start, EINA_TRUE);
     elm_object_disabled_set(stop, EINA_FALSE);
+
+
+    error1 = sensor_get_resolution(sensor1, &resolution1); //추가
+        if (error1 != SENSOR_ERROR_NONE) {
+            dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_resolution error: %d", error1);
+            return;
+        }
+
+        dlog_print(DLOG_DEBUG, LOG_TAG, "Resolution of the sensor: %f", resolution1);
+
+        elm_object_disabled_set(start, EINA_TRUE);
+        elm_object_disabled_set(stop, EINA_FALSE);
+
+
 }
 
 void _sensor_stop_cb(void *data, Evas_Object *obj, void *event_info)
