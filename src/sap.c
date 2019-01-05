@@ -61,11 +61,10 @@ void on_data_received(sap_socket_h socket, unsigned short int channel_id){
           free(msg);
        }
         else {
-          //d1.sum= g_strdup_printf("%d\t%s\t%.1lf\t%.1lf\t%.1lf", d1.hrm_data, d1.time_data, d1.accel_data[0], d1.accel_data[1], d1.accel_data[2]);//test
-          d1.sum= g_strdup_printf("%d %s %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf", d1.hrm_data, d1.time_data, d1.accel_data[0], d1.accel_data[1], d1.accel_data[2], d1.gyro_data[0], d1.gyro_data[1], d1.gyro_data[2]);
+          d1.sum= g_strdup_printf("%d %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf", d1.hrm_data, d1.accel_data[0], d1.accel_data[1], d1.accel_data[2], d1.gyro_data[0], d1.gyro_data[1], d1.gyro_data[2]);
           payload_length = strlen(d1.sum);
           sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, d1.sum);
-          dlog_print(DLOG_INFO, LOG_TAG, "%s",d1.sum); //test
+          dlog_print(DLOG_INFO, LOG_TAG, "%s",d1.sum);
           g_free(d1.sum);
           //send the buffer to the consumer
        }

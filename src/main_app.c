@@ -26,27 +26,24 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
     switch (type) {
     case SENSOR_HRM:
         d1.hrm_data = event->values[0];
-         dlog_print(DLOG_INFO, LOG_TAG, "hr:%d",d1.hrm_data);
-         // print the value in monitor
-         char a[100];
-         sprintf(a,"%.0f", event->values[0]);
-         elm_object_text_set(event_label, a);
-         //on_data_received(socket, HELLO_ACC_CHANNELID);
+        // print the value in monitor
+        char a[100];
+        sprintf(a,"%.0f", event->values[0]);
+        elm_object_text_set(event_label, a);
+        //on_data_received(socket, HELLO_ACC_CHANNELID);
         break;
 
     case SENSOR_ACCELEROMETER:
-          for(int i = 0; i < 3; i++){
-             d1.accel_data[i] = event->values[i];
-          }
-          dlog_print(DLOG_INFO, LOG_TAG, "accel:%.1lf\t%.1lf\t%.1lf" , d1.accel_data[0], d1.accel_data[1], d1.accel_data[2]);
-        //on_data_received(socket, HELLO_ACC_CHANNELID);
-          break;
+         for(int i = 0; i < 3; i++){
+            d1.accel_data[i] = event->values[i];
+         }
+         //on_data_received(socket, HELLO_ACC_CHANNELID);
+         break;
 
     case SENSOR_GYROSCOPE:
        for(int j = 0; j < 3; j++){
            d1.gyro_data[j] = event->values[j];
        }
-       dlog_print(DLOG_INFO, LOG_TAG, "gyro:%.1lf\t%.1lf\t%.1lf" , d1.gyro_data[0], d1.gyro_data[1], d1.gyro_data[2]);
        on_data_received(socket, HELLO_ACC_CHANNELID);
        break;
 
@@ -561,7 +558,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 void _sensor_stop_cb(void *data, Evas_Object *obj, void *event_info)
 {
-    int error = sensor_listener_unset_event_cb(listener);
+    int error = sensor_listener_unset_event_cb(listener); //hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_unset_event_cb error: %d", error);
     }
@@ -574,6 +571,42 @@ void _sensor_stop_cb(void *data, Evas_Object *obj, void *event_info)
     error = sensor_destroy_listener(listener);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_destroy_listener error: %d", error);
+    }
+
+    elm_object_disabled_set(start, EINA_FALSE);
+    elm_object_disabled_set(stop, EINA_TRUE);
+
+    int error1 = sensor_listener_unset_event_cb(listener1); //accel
+    if (error1 != SENSOR_ERROR_NONE) {
+        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_unset_event_cb error: %d", error1);
+    }
+
+    error1 = sensor_listener_stop(listener1);
+    if (error1 != SENSOR_ERROR_NONE) {
+        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_stop error: %d", error1);
+    }
+
+    error1 = sensor_destroy_listener(listener1);
+    if (error1 != SENSOR_ERROR_NONE) {
+        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_destroy_listener error: %d", error1);
+    }
+
+    elm_object_disabled_set(start, EINA_FALSE);
+    elm_object_disabled_set(stop, EINA_TRUE);
+
+    int error2 = sensor_listener_unset_event_cb(listener2); //gyro
+    if (error2 != SENSOR_ERROR_NONE) {
+        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_unset_event_cb error: %d", error2);
+    }
+
+    error2 = sensor_listener_stop(listener2);
+    if (error2 != SENSOR_ERROR_NONE) {
+        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_stop error: %d", error2);
+    }
+
+    error2 = sensor_destroy_listener(listener2);
+    if (error2 != SENSOR_ERROR_NONE) {
+        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_destroy_listener error: %d", error2);
     }
 
     elm_object_disabled_set(start, EINA_FALSE);
