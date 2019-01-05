@@ -33,7 +33,7 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration artifactName="hrmsensorapp" buildArtefactType="org.tizen.nativecore.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.tizen.nativecore.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;" id="org.tizen.nativecore.config.sbi.gcc45.app.debug.98082991" name="Debug" parent="org.tizen.nativecore.config.sbi.gcc45.app.debug">
+                <configuration artifactName="sensorapp" buildArtefactType="org.tizen.nativecore.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.tizen.nativecore.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;" id="org.tizen.nativecore.config.sbi.gcc45.app.debug.98082991" name="Debug" parent="org.tizen.nativecore.config.sbi.gcc45.app.debug">
                     					
                     <folderInfo id="org.tizen.nativecore.config.sbi.gcc45.app.debug.98082991." name="/" resourcePath="">
                         						
@@ -323,13 +323,13 @@
                                 								
                                 <option id="sbi.gnu.c.compiler.option.frameworks_cflags.core.2037030663" name="Tizen-Frameworks-Other-Cflags" superClass="sbi.gnu.c.compiler.option.frameworks_cflags.core" valueType="stringList">
                                     									
-                                    <listOptionValue builtIn="false" value="${TC_COMPILER_MISC}"/>
+                                    <listOptionValue builtIn="false" value="$(TC_COMPILER_MISC)"/>
                                     									
-                                    <listOptionValue builtIn="false" value="${RS_COMPILER_MISC}"/>
+                                    <listOptionValue builtIn="false" value="$(RS_COMPILER_MISC)"/>
                                     									
                                     <listOptionValue builtIn="false" value=" -fPIE"/>
                                     									
-                                    <listOptionValue builtIn="false" value="--sysroot=&quot;${SBI_SYSROOT}&quot;"/>
+                                    <listOptionValue builtIn="false" value="--sysroot=&quot;$(SBI_SYSROOT)&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="-mthumb"/>
                                     								
@@ -363,21 +363,23 @@
                                 								
                                 <option id="sbi.gnu.cpp.linker.option.frameworks_lflags.core.926549240" name="Tizen-Frameworks-Other-Lflags" superClass="sbi.gnu.cpp.linker.option.frameworks_lflags.core" valueType="stringList">
                                     									
-                                    <listOptionValue builtIn="false" value="${TC_LINKER_MISC}"/>
+                                    <listOptionValue builtIn="false" value="$(TC_LINKER_MISC)"/>
                                     									
-                                    <listOptionValue builtIn="false" value="${RS_LINKER_MISC}"/>
+                                    <listOptionValue builtIn="false" value="$(RS_LINKER_MISC)"/>
                                     									
                                     <listOptionValue builtIn="false" value="-pie -lpthread "/>
                                     									
-                                    <listOptionValue builtIn="false" value="--sysroot=&quot;${SBI_SYSROOT}&quot;"/>
+                                    <listOptionValue builtIn="false" value="--sysroot=&quot;$(SBI_SYSROOT)&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="-Xlinker --version-script=&quot;${PROJ_PATH}/.exportMap&quot;"/>
+                                    <listOptionValue builtIn="false" value="-Xlinker --version-script=&quot;$(PROJ_PATH)/.exportMap&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="-L&quot;${SBI_SYSROOT}/usr/lib&quot;"/>
+                                    <listOptionValue builtIn="false" value="-L&quot;$(SBI_SYSROOT)/usr/lib&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="-L&quot;${SBI_SYSROOT}/../wearable-2.3.2-device.core/usr/lib&quot;"/>
+                                    <listOptionValue builtIn="false" value="-L&quot;$(SBI_SYSROOT)/../wearable-2.3.2-device.core/usr/lib&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="$(RS_LIBRARIES)"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="-Xlinker -rpath=&quot;//opt/usr/apps/org.example.hrmsensorapp/lib&quot;"/>
                                     								
                                 </option>
                                 								

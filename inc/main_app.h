@@ -41,6 +41,7 @@ struct Data{
 	int hrm_data;
 	char *time_data;
 	double accel_data[3];
+	double gyro_data[3];
 	char *sum;
 };
 struct Data d1;
