@@ -26,7 +26,6 @@
 #define _PRINT_MSG_LOG_BUFFER_SIZE_ 1024
 #define PRINT_MSG(fmt, args...) do { char _log_[_PRINT_MSG_LOG_BUFFER_SIZE_]; \
     snprintf(_log_, _PRINT_MSG_LOG_BUFFER_SIZE_, fmt, ##args); _add_entry_text(_log_); } while (0)
-#define BUFLEN 5
 
 typedef struct {
     Evas_Object *win;
@@ -37,8 +36,14 @@ void _add_entry_text(const char *text);
 Evas_Object *_new_button(appdata_s *ad, Evas_Object *display, char *name, void *cb);
 void _create_new_cd_display(appdata_s *ad, char *name, void *cb);
 Eina_Bool _pop_cb(void *data, Elm_Object_Item *item);
-extern char hrm_data[BUFLEN];
-extern unsigned long long timestamp;
+
+struct Data{
+	int hrm_data;
+	char *time_data;
+	double accel_data[3];
+	char *sum;
+};
+struct Data d1;
 
 #ifndef PACKAGE
 #define PACKAGE "org.example.sensor"
