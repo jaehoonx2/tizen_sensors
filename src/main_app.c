@@ -11,46 +11,50 @@ Evas_Object *start, *stop;
 Evas_Object *conform;
 sensor_listener_h listener; //hr
 sensor_listener_h listener1; //accel
-sensor_listener_h listener2; //gyro
 Evas_Object *event_label;
 
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
 extern struct Data d1;
+static int j=0;
+static int i=0;
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
-   // Select a specific sensor with a sensor handle
     sensor_type_e type;
     sensor_get_type(sensor, &type);
 
     switch (type) {
     case SENSOR_HRM:
-        d1.hrm_data = event->values[0];
-        // print the value in monitor
-        char a[100];
-        sprintf(a,"%.0f", event->values[0]);
-        elm_object_text_set(event_label, a);
-        //on_data_received(socket, HELLO_ACC_CHANNELID);
-        break;
+    	if(j<10){
+    		d1.hrm_data[j]=event->values[0];
+    		j++;
+    		char a[100];
+    		sprintf(a,"%.0f", event->values[0]);
+    		elm_object_text_set(event_label, a);
+    	}
+    	else if(j>=10){
+    		j=0;
+    	}
+    	break;
 
     case SENSOR_ACCELEROMETER:
-         for(int i = 0; i < 3; i++){
-            d1.accel_data[i] = event->values[i];
-         }
-         //on_data_received(socket, HELLO_ACC_CHANNELID);
-         break;
-
-    case SENSOR_GYROSCOPE:
-       for(int j = 0; j < 3; j++){
-           d1.gyro_data[j] = event->values[j];
-       }
-       on_data_received(socket, HELLO_ACC_CHANNELID);
-       break;
+    	if(i<30){
+    		d1.accel_data[i]=event->values[0];
+    		d1.accel_data[i+1]=event->values[1];
+       		d1.accel_data[i+2]=event->values[2];
+    		i+=3;
+    	}
+    	else if(i>=30 && j>=10){
+    		on_data_received(socket, HELLO_ACC_CHANNELID);
+    		i=0;
+    	}
+    	break;
 
     default:
        dlog_print(DLOG_ERROR, LOG_TAG, "Not an Sensor event");
     }
 }
+
 void _sensor_accuracy_changed_cb(sensor_h sensor, unsigned long long timestamp,
                                  sensor_data_accuracy_e accuracy, void *data)
 {
@@ -61,10 +65,8 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 {
     void *user_data = NULL; //hr
     void *user_data1 = NULL; //accel
-    void *user_data2 = NULL; //gyro
     char out[100]; //hr
     char out1[100]; //accel
-    char out2[100]; //gyro
 
     // Retrieving a Sensor
     sensor_type_e type = SENSOR_HRM; //hr
@@ -72,9 +74,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
     sensor_type_e type1 = SENSOR_ACCELEROMETER; //accel
     sensor_h sensor1; //accel
-
-    sensor_type_e type2 = SENSOR_GYROSCOPE; //gyro
-    sensor_h sensor2; //gyro
 
     bool supported; //hr
     int error = sensor_is_supported(type, &supported);
@@ -87,13 +86,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     int error1 = sensor_is_supported(type1, &supported1);
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_is_supported error: %d", error1);
-        return;
-    }
-
-    bool supported2; //gyro
-    int error2 = sensor_is_supported(type2, &supported2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_is_supported error: %d", error2);
         return;
     }
 
@@ -111,22 +103,12 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
        elm_object_text_set(event_label, out1);
     }
 
-    if(supported2) //gyro
-    {
-        dlog_print(DLOG_DEBUG, LOG_TAG, "GYROSCOPE is%s supported", supported2 ? "" : " not");
-        sprintf(out2,"GYROSCOPE is%s supported", supported2 ? "" : " not");
-        elm_object_text_set(event_label, out2);
-    }
-
     // Get sensor list
     int count; //hr
     sensor_h *list; //hr
 
     int count1; //accel
     sensor_h *list1; //aceel
-
-    int count2; //gyro
-    sensor_h *list2; //gyro
 
     error = sensor_get_sensor_list(type, &list, &count); //hr
     if (error != SENSOR_ERROR_NONE) {
@@ -154,21 +136,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     error1 = sensor_get_default_sensor(type1, &sensor1);
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_default_sensor error: %d", error1);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_get_default_sensor");
-
-    error2 = sensor_get_sensor_list(type2, &list2, &count2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_sensor_list error: %d", error2);
-    } else {
-        dlog_print(DLOG_DEBUG, LOG_TAG, "Number of sensors: %d", count2);
-        free(list2);
-    }
-
-    error2 = sensor_get_default_sensor(type2, &sensor2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_default_sensor error: %d", error2);
         return;
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_get_default_sensor");
@@ -204,21 +171,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum interval of the sensor: %d", min_interval1);
 
-    error2 = sensor_create_listener(sensor2, &listener2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_create_listener error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_create_listener");
-
-    int min_interval2 = 0;
-    error2 = sensor_get_min_interval(sensor2, &min_interval2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_interval error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum interval of the sensor: %d", min_interval2);
-
     // Callback for sensor value change
     error = sensor_listener_set_event_cb(listener, min_interval, on_sensor_event, user_data); //hr
     if (error != SENSOR_ERROR_NONE) {
@@ -234,13 +186,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_event_cb");
 
-    error2 = sensor_listener_set_event_cb(listener2, min_interval2, on_sensor_event, user_data2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_event_cb error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_event_cb");
-
     // Registering the Accuracy Changed Callback
     //hr
     error = sensor_listener_set_accuracy_cb(listener, _sensor_accuracy_changed_cb, user_data);
@@ -250,7 +195,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
-    error = sensor_listener_set_interval(listener, 1000);
+    error = sensor_listener_set_interval(listener, 20);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error);
         return;
@@ -279,7 +224,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
-    error1 = sensor_listener_set_interval(listener1, 1000);
+    error1 = sensor_listener_set_interval(listener1, 20);
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error1);
         return;
@@ -300,35 +245,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_start");
 
-    //gyro
-    error2 = sensor_listener_set_accuracy_cb(listener2, _sensor_accuracy_changed_cb, user_data2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_accuracy_cb error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
-
-    error2 = sensor_listener_set_interval(listener2, 1000);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_intervals");
-
-    error2 = sensor_listener_set_option(listener2, SENSOR_OPTION_ALWAYS_ON);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_option error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_option");
-
-    error2 = sensor_listener_start(listener2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_start error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_start");
-
     sensor_event_s event; //hr
     error = sensor_listener_read_data(listener, &event);
     if (error != SENSOR_ERROR_NONE) {
@@ -340,13 +256,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     error1 = sensor_listener_read_data(listener1, &event1);
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_read_data error: %d", error1);
-        return;
-    }
-
-    sensor_event_s event2; //gyro
-    error2 = sensor_listener_read_data(listener2, &event2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_read_data error: %d", error2);
         return;
     }
 
@@ -364,19 +273,12 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
        elm_object_text_set(event_label, out1);
        break;
 
-    case SENSOR_GYROSCOPE:
-       dlog_print(DLOG_INFO, LOG_TAG, " X:%.1lf Y:%.1lf Z:%.1lf" , event.values[0], event.values[1], event.values[2]);
-       sprintf(out2,"X:%.1lf Y:%.1lf Z:%.1lf", event.values[0], event.values[1], event.values[2]);
-       elm_object_text_set(event_label, out2);
-       break;
-
     default:
         dlog_print(DLOG_ERROR, LOG_TAG, "Not an Sensor event");
     }
 
     dlog_print(DLOG_DEBUG, LOG_TAG, out); //hr
     dlog_print(DLOG_DEBUG, LOG_TAG, out1); //accel
-    dlog_print(DLOG_DEBUG, LOG_TAG, out2); //gyro
 
     char *name = NULL; //hr
     char *vendor = NULL;
@@ -390,12 +292,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     float min_range1 = -19.6;
     float max_range1 = 19.6;
     float resolution1 = 0.0;
-
-    char *name2 = NULL; //gyro
-    char *vendor2 = NULL;
-    float min_range2 = -573.0;
-    float max_range2 = 573.0;
-    float resolution2 = 0.0;
 
     error = sensor_get_name(sensor, &name); //hr
     if (error != SENSOR_ERROR_NONE) {
@@ -413,14 +309,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor name: %s", name1);
     free(name1);
 
-    error2 = sensor_get_name(sensor2, &name2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_name error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor name: %s", name2);
-    free(name2);
-
     error = sensor_get_vendor(sensor, &vendor); //hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_vendor error: %d", error);
@@ -437,14 +325,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor vendor: %s", vendor1);
     free(vendor1);
 
-    error2 = sensor_get_vendor(sensor2, &vendor2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_vendor error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "Sensor vendor: %s", vendor2);
-    free(vendor2);
-
     error = sensor_get_type(sensor, &type); //hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_type error: %d", error);
@@ -454,12 +334,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     error1 = sensor_get_type(sensor1, &type1); //accel
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_type error: %d", error1);
-        return;
-    }
-
-    error2 = sensor_get_type(sensor2, &type2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_type error: %d", error2);
         return;
     }
 
@@ -497,13 +371,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum range of the sensor: %f", min_range1);
 
-    error2 = sensor_get_min_range(sensor2, &min_range2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_range error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "Minimum range of the sensor: %f", min_range2);
-
     error = sensor_get_max_range(sensor, &max_range); //hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_max_range error: %d", error);
@@ -517,13 +384,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
         return;
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "Maximum range of the sensor: %f", max_range1);
-
-    error2 = sensor_get_max_range(sensor2, &max_range2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_max_range error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "Maximum range of the sensor: %f", max_range2);
 
     error = sensor_get_resolution(sensor, &resolution); //hr
     if (error != SENSOR_ERROR_NONE) {
@@ -541,16 +401,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
         return;
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "Resolution of the sensor: %f", resolution1);
-
-    elm_object_disabled_set(start, EINA_TRUE);
-    elm_object_disabled_set(stop, EINA_FALSE);
-
-    error2 = sensor_get_resolution(sensor2, &resolution2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_resolution error: %d", error2);
-        return;
-    }
-    dlog_print(DLOG_DEBUG, LOG_TAG, "Resolution of the sensor: %f", resolution2);
 
     elm_object_disabled_set(start, EINA_TRUE);
     elm_object_disabled_set(stop, EINA_FALSE);
@@ -589,24 +439,6 @@ void _sensor_stop_cb(void *data, Evas_Object *obj, void *event_info)
     error1 = sensor_destroy_listener(listener1);
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_destroy_listener error: %d", error1);
-    }
-
-    elm_object_disabled_set(start, EINA_FALSE);
-    elm_object_disabled_set(stop, EINA_TRUE);
-
-    int error2 = sensor_listener_unset_event_cb(listener2); //gyro
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_unset_event_cb error: %d", error2);
-    }
-
-    error2 = sensor_listener_stop(listener2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_stop error: %d", error2);
-    }
-
-    error2 = sensor_destroy_listener(listener2);
-    if (error2 != SENSOR_ERROR_NONE) {
-        dlog_print(DLOG_ERROR, LOG_TAG, "sensor_destroy_listener error: %d", error2);
     }
 
     elm_object_disabled_set(start, EINA_FALSE);
@@ -714,6 +546,7 @@ static bool app_create(void *data)
      */
     create_base_gui((appdata_s *)data);
     initialize_sap();
+    elm_object_text_set(event_label, "BCI");
 
     return true;
 }

@@ -38,10 +38,8 @@ void _create_new_cd_display(appdata_s *ad, char *name, void *cb);
 Eina_Bool _pop_cb(void *data, Elm_Object_Item *item);
 
 struct Data{
-	int hrm_data;
-	char *time_data;
-	double accel_data[3];
-	double gyro_data[3];
+	int hrm_data[10];
+	double accel_data[30];
 	char *sum;
 };
 struct Data d1;
