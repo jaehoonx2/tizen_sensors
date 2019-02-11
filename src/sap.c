@@ -8,6 +8,9 @@
 #define HELLO_ACC_ASPID "/sample/hello"
 #define HELLO_ACC_CHANNELID 104
 
+extern int hrm_data;
+extern double accel_data[ACCLEN];
+
 struct priv {
    sap_agent_h agent;
    sap_socket_h socket;
@@ -38,25 +41,26 @@ static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
    priv_data.socket = NULL;
 }
 
-extern struct Data d1;
-
 void on_data_received(sap_socket_h socket, unsigned short int channel_id){
+
 	unsigned int payload_length;
- 	d1.sum= g_strdup_printf("%d %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf %.1lf",
- 			d1.hrm_data[0], d1.accel_data[0],d1.accel_data[1], d1.accel_data[2],
-			d1.accel_data[3],d1.accel_data[4], d1.accel_data[5],
-			d1.accel_data[6],d1.accel_data[7], d1.accel_data[8],
-			d1.accel_data[9],d1.accel_data[10], d1.accel_data[11],
-			d1.accel_data[12],d1.accel_data[13], d1.accel_data[14],
-			d1.accel_data[15],d1.accel_data[16], d1.accel_data[17],
-			d1.accel_data[18],d1.accel_data[19], d1.accel_data[20],
-			d1.accel_data[21],d1.accel_data[22], d1.accel_data[23],
-			d1.accel_data[24],d1.accel_data[25], d1.accel_data[26],
-			d1.accel_data[27],d1.accel_data[28], d1.accel_data[29]);
- 	payload_length = strlen(d1.sum);
- 	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, d1.sum);	// send the buffer to the consumer
- 	dlog_print(DLOG_INFO, LOG_TAG, "%s",d1.sum);
- 	free(d1.sum);
+ 	char * msg = g_strdup_printf("%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+ 			hrm_data,
+			accel_data[0],  accel_data[1],  accel_data[2],
+			accel_data[3],  accel_data[4],  accel_data[5],
+			accel_data[6],  accel_data[7],  accel_data[8],
+			accel_data[9],  accel_data[10], accel_data[11],
+			accel_data[12], accel_data[13], accel_data[14],
+			accel_data[15], accel_data[16], accel_data[17],
+			accel_data[18], accel_data[19], accel_data[20],
+			accel_data[21], accel_data[22], accel_data[23],
+			accel_data[24], accel_data[25], accel_data[26],
+			accel_data[27], accel_data[28], accel_data[29]);
+
+ 	payload_length = strlen(msg);
+ 	dlog_print(DLOG_INFO, LOG_TAG, "payload length : %d", payload_length);
+ 	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);	// send the msg to the Consumer(A)
+ 	g_free(msg);
 }
 
 static void on_service_connection_requested(sap_peer_agent_h peer_agent,

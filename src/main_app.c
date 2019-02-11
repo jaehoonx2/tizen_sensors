@@ -1,22 +1,23 @@
 #include "helloaccessory.h"
 #include "main_app.h"
-#include "sap.h"               // originally <sap.h>
+#include "sap.h"						// originally <sap.h>
 #include <sensor.h>
 #include <string.h>
 
-#define HELLO_ACC_CHANNELID 104      // should be modified later (duplicated)
+#define HELLO_ACC_CHANNELID 104			// should be modified later (duplicated)
 
 Evas_Object *GLOBAL_DEBUG_BOX;
 Evas_Object *start, *stop;
 Evas_Object *conform;
-sensor_listener_h listener; //hr
-sensor_listener_h listener1; //accel
+sensor_listener_h listener; 			// hr
+sensor_listener_h listener1;			// accel
 Evas_Object *event_label;
 
+int idx = 0;
+
+extern int hrm_data;
+extern double accel_data[ACCLEN];
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
-extern struct Data d1;
-static int j=0;
-static int i=0;
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
@@ -25,33 +26,25 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 
     switch (type) {
     case SENSOR_HRM:
-    	if(j<10){
-    		d1.hrm_data[j]=event->values[0];
-    		j++;
+    		hrm_data = event->values[0];
     		char a[100];
-    		sprintf(a,"%.0f", event->values[0]);
+    		sprintf(a,"Heart BPM : %.0f", event->values[0]);
     		elm_object_text_set(event_label, a);
-    	}
-    	else if(j>=10){
-    		j=0;
-    	}
-    	break;
+    		break;
 
     case SENSOR_ACCELEROMETER:
-    	if(i<30){
-    		d1.accel_data[i]=event->values[0];
-    		d1.accel_data[i+1]=event->values[1];
-       		d1.accel_data[i+2]=event->values[2];
-    		i+=3;
-    	}
-    	else if(i>=30 && j>=10){
-    		on_data_received(socket, HELLO_ACC_CHANNELID);
-    		i=0;
-    	}
-    	break;
-
+			if(idx < ACCLEN) {
+				accel_data[idx] = event->values[0];
+				accel_data[idx+1] = event->values[1];
+				accel_data[idx+2] = event->values[2];
+				idx += 3;
+			} else {
+				on_data_received(socket, HELLO_ACC_CHANNELID);
+				idx = 0;
+			}
+			break;
     default:
-       dlog_print(DLOG_ERROR, LOG_TAG, "Not an Sensor event");
+    		dlog_print(DLOG_ERROR, LOG_TAG, "Not an Sensor event");
     }
 }
 
@@ -494,7 +487,7 @@ void _create_new_cd_display(appdata_s *ad, char *name, void *cb)
     start = _new_button(ad, box, "Start", _sensor_start_cb);
 
     event_label = elm_label_add(box);
-    elm_object_text_set(event_label, "Press Start and Wait");
+    elm_object_text_set(event_label, "Tizen Sensors App");
     elm_box_pack_end(box, event_label);
     evas_object_show(event_label);
 
@@ -546,7 +539,7 @@ static bool app_create(void *data)
      */
     create_base_gui((appdata_s *)data);
     initialize_sap();
-    elm_object_text_set(event_label, "BCI");
+    elm_object_text_set(event_label, "Tizen Sensors App");
 
     return true;
 }
