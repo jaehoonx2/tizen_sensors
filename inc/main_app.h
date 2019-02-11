@@ -39,7 +39,7 @@ void _create_new_cd_display(appdata_s *ad, char *name, void *cb);
 Eina_Bool _pop_cb(void *data, Elm_Object_Item *item);
 
 int hrm_data;
-double accel_data[ACCLEN];
+float accel_data[ACCLEN];
 
 #ifndef PACKAGE
 #define PACKAGE "org.example.sensor"

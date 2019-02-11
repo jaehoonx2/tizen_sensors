@@ -16,7 +16,7 @@ Evas_Object *event_label;
 int idx = 0;
 
 extern int hrm_data;
-extern double accel_data[ACCLEN];
+extern float accel_data[ACCLEN];
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
@@ -26,7 +26,7 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 
     switch (type) {
     case SENSOR_HRM:
-    		hrm_data = event->values[0];
+    		hrm_data = (int) event->values[0];
     		char a[100];
     		sprintf(a,"Heart BPM : %.0f", event->values[0]);
     		elm_object_text_set(event_label, a);
@@ -255,14 +255,14 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     switch (type) {
 
     case SENSOR_HRM:
-       dlog_print(DLOG_INFO, LOG_TAG, "%f" , event.values[0]);
-       sprintf(out,"%f", event.values[0]);
+       dlog_print(DLOG_INFO, LOG_TAG, "%.0f" , event.values[0]);
+       sprintf(out,"%.0f", event.values[0]);
        elm_object_text_set(event_label, out);
        break;
 
     case SENSOR_ACCELEROMETER:
-       dlog_print(DLOG_INFO, LOG_TAG, " X:%.1lf Y:%.1lf Z:%.1lf" , event.values[0], event.values[1], event.values[2]);
-       sprintf(out1,"X:%.1lf Y:%.1lf Z:%.1lf", event.values[0], event.values[1], event.values[2]);
+       dlog_print(DLOG_INFO, LOG_TAG, " X:%f Y:%f Z:%f" , event.values[0], event.values[1], event.values[2]);
+       sprintf(out1,"X:%f Y:%f Z:%f", event.values[0], event.values[1], event.values[2]);
        elm_object_text_set(event_label, out1);
        break;
 

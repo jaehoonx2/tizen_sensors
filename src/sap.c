@@ -9,7 +9,7 @@
 #define HELLO_ACC_CHANNELID 104
 
 extern int hrm_data;
-extern double accel_data[ACCLEN];
+extern float accel_data[ACCLEN];
 
 struct priv {
    sap_agent_h agent;
@@ -44,7 +44,7 @@ static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 void on_data_received(sap_socket_h socket, unsigned short int channel_id){
 
 	unsigned int payload_length;
- 	char * msg = g_strdup_printf("%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+ 	char * msg = g_strdup_printf("%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
  			hrm_data,
 			accel_data[0],  accel_data[1],  accel_data[2],
 			accel_data[3],  accel_data[4],  accel_data[5],
