@@ -40,6 +40,7 @@ Eina_Bool _pop_cb(void *data, Elm_Object_Item *item);
 
 int hrm_data;
 float accel_data[ACCLEN];
+unsigned long long timestamp;
 
 #ifndef PACKAGE
 #define PACKAGE "org.example.sensor"

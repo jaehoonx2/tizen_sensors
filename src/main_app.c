@@ -17,6 +17,7 @@ int idx = 0;
 
 extern int hrm_data;
 extern float accel_data[ACCLEN];
+extern unsigned long long timestamp;
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
@@ -34,6 +35,9 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 
     case SENSOR_ACCELEROMETER:
 			if(idx < ACCLEN) {
+				if(idx == 0){
+					timestamp = event->timestamp;
+				}
 				accel_data[idx] = event->values[0];
 				accel_data[idx+1] = event->values[1];
 				accel_data[idx+2] = event->values[2];
