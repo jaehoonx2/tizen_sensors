@@ -26,7 +26,9 @@
 #define _PRINT_MSG_LOG_BUFFER_SIZE_ 1024
 #define PRINT_MSG(fmt, args...) do { char _log_[_PRINT_MSG_LOG_BUFFER_SIZE_]; \
     snprintf(_log_, _PRINT_MSG_LOG_BUFFER_SIZE_, fmt, ##args); _add_entry_text(_log_); } while (0)
-#define ACCLEN 30		// must be multiples of 3 (x, y, z)
+#define ACCLEN 30					// must be multiples of 3 (x, y, z)
+#define HELLO_ACC_CHANNELID 104		// Channel Num
+
 
 typedef struct {
     Evas_Object *win;

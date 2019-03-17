@@ -6,7 +6,6 @@
 #include <string.h>
 
 #define HELLO_ACC_ASPID "/sample/hello"
-#define HELLO_ACC_CHANNELID 104
 
 extern int hrm_data;
 extern float accel_data[ACCLEN];
