@@ -4,11 +4,11 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="author-signature.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>90P27k5qnePTqBAOJwyQOZ2ox6NBt48mO0q/7cL5O7Q=</DigestValue>
+<DigestValue>NmEnfkbGeh0zabg+NogD4LPED3KmJu8w5idynObdHQE=</DigestValue>
 </Reference>
 <Reference URI="bin%2Fsensorapp">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>ExQGLyljxmOZZz2kY/rBGciwwkL0JG/FUCRZEbmKfwE=</DigestValue>
+<DigestValue>SkS1LSev5knpvOA05GRh9iETlWYhjudKGFA2MSl9zMM=</DigestValue>
 </Reference>
 <Reference URI="lib%2F.gitkeep">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -35,11 +35,11 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-IjEscxoglxqpNQuubT0B4wTfackEKATtmUFTeTByfZTWLRbViFMqXQxCQNdxZBAS6c3L/N6Nq41E
-DlFovIXT503DlCKSzJLYpJXJQQs8V0RjZLWPCZsQ35dUQGSR2xDdRFU2KmL0Ic6PIGGd/VUDhYje
-RKV8Ld/eayTLKIFnJoSnAmf8tWaheufxTIgdZY0GLG9M3eXd76CXrARAjfqutUDGAqbVXK0GGYYp
-NtY7pUpmVSfP3P8rkLN5YBySz7GLH1z8UuOxRG+8IGfoR7nC3RdeYGZZwI4kXLX2qqtbmDC2LVkV
-Q+8xayJ4FS260q02MnjDfGxAtbcv5heYr41P3Q==
+RurGkccqafMoXtHVATXGuAydRwQJthgDc9chpmN0g0Azr+q1GrQuLybIjGCDW+mt36v7OUi8MdTT
+Y7x3rZiK2wjyEvI5nzRa3pnCUyjSPEFase+80VuhXl1wsdIr5HeFvP/EwPN34e4oJFg2Rtz54jvT
+BkahB+SVHi9tXdV4Tflekpt3UQs1AxiMgzkuMCuZQeYzY7AtQ+r3uSnKo3A87NreInuNYglvMLIT
+pB/RxAt8fhOht6U07wnyRTyaIXOe33XJ9CFdN3PtQSyHRwdpJM32hKipHcEtcDK0/KvUVlI5qhlf
+BeUdU0K8/gXprgpRFuDP7Eil8xhL1vNl2Vor2w==
 </SignatureValue>
 <KeyInfo>
 <X509Data>

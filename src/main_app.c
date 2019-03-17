@@ -3,6 +3,7 @@
 #include "sap.h"						// originally <sap.h>
 #include <sensor.h>
 #include <string.h>
+#include <sys/time.h>
 
 #define HELLO_ACC_CHANNELID 104			// should be modified later (duplicated)
 
@@ -17,13 +18,15 @@ int idx = 0;
 
 extern int hrm_data;
 extern float accel_data[ACCLEN];
-extern unsigned long long timestamp;
+extern double time_in_mill;
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
-    sensor_type_e type;
+	sensor_type_e type;
     sensor_get_type(sensor, &type);
+
+    struct timeval timeVal;
 
     switch (type) {
     case SENSOR_HRM:
@@ -36,7 +39,9 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
     case SENSOR_ACCELEROMETER:
 			if(idx < ACCLEN) {
 				if(idx == 0){
-					timestamp = event->timestamp;
+					// convert tv_sec & tv_usec to millisecond
+					gettimeofday(&timeVal, NULL);
+					time_in_mill = (timeVal.tv_sec)*1000 + (timeVal.tv_usec)/1000;
 				}
 				accel_data[idx] = event->values[0];
 				accel_data[idx+1] = event->values[1];
@@ -192,7 +197,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
-    error = sensor_listener_set_interval(listener, 20);
+    error = sensor_listener_set_interval(listener, 25);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error);
         return;
@@ -221,7 +226,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
-    error1 = sensor_listener_set_interval(listener1, 20);
+    error1 = sensor_listener_set_interval(listener1, 25);
     if (error1 != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error1);
         return;
