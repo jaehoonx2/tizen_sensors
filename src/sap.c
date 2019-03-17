@@ -1,9 +1,9 @@
 #include "helloaccessory.h"
 #include "main_app.h"
-#include <sensor.h>
 #include <sap.h>
-#include <glib.h>
+#include <sensor.h>
 #include <string.h>
+#include <glib.h>
 
 #define HELLO_ACC_ASPID "/sample/hello"
 

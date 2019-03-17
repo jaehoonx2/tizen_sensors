@@ -18,7 +18,6 @@ extern void on_data_received(sap_socket_h socket, unsigned short int channel_id)
 
 int idx = 0;
 
-
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
 	sensor_type_e type;
@@ -63,63 +62,68 @@ void _sensor_accuracy_changed_cb(sensor_h sensor, unsigned long long timestamp,
 
 void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 {
-    void *user_data_hrm = NULL;					// hr
-    char out_hrm[100];
-    
-    void *user_data_accel = NULL;				// accel
-    char out_accel[100];
+    void *user_data = NULL;
+    char out[100];
+
+    char *name = NULL;
+    char *vendor = NULL;
+    float resolution = 0.0;
+
+    float min_hrm = 0.0;
+    float max_hrm = 220.0;
+
+    float min_accel = -19.6;
+    float max_accel = 19.6;
 
     // Retrieving a Sensor
     sensor_type_e type_hrm = SENSOR_HRM;
     sensor_type_e type_accel = SENSOR_ACCELEROMETER;
     sensor_h sensor_hrm, sensor_accel;
 
-	bool supported_hrm, supported_accel;
-    int error = sensor_is_supported(type_hrm, &supported_hrm);
+	bool supported;
 
+    int error = sensor_is_supported(type_hrm, &supported);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_is_supported error: %d", error);
         return;
     }
-    error = sensor_is_supported(type_accel, &supported_accel);
+    if(supported) {
+       dlog_print(DLOG_DEBUG, LOG_TAG, "HRM is%s supported", supported ? "" : " not");
+       sprintf(out,"HRM is%s supported", supported ? "" : " not");
+       elm_object_text_set(event_label, out);
+    }
+
+    error = sensor_is_supported(type_accel, &supported);
 	if (error != SENSOR_ERROR_NONE) {
 		dlog_print(DLOG_ERROR, LOG_TAG, "sensor_is_supported error: %d", error);
 		return;
 	}
-
-    if(supported_hrm) {
-       dlog_print(DLOG_DEBUG, LOG_TAG, "HRM is%s supported", supported_hrm ? "" : " not");
-       sprintf(out_hrm,"HRM is%s supported", supported_hrm ? "" : " not");
-       elm_object_text_set(event_label, out_hrm);
-    }
-
-    if(supported_accel) {
-       dlog_print(DLOG_DEBUG, LOG_TAG, "ACCELEROMETER is%s supported", supported_accel ? "" : " not");
-       sprintf(out_accel,"ACCELEROMETER is%s supported", supported_accel ? "" : " not");
-       elm_object_text_set(event_label, out_accel);
+    if(supported) {
+       dlog_print(DLOG_DEBUG, LOG_TAG, "ACCELEROMETER is%s supported", supported ? "" : " not");
+       sprintf(out,"ACCELEROMETER is%s supported", supported ? "" : " not");
+       elm_object_text_set(event_label, out);
     }
 
 
 
     // Get sensor list
-    int count_hrm, count_accel;
-    sensor_h *list_hrm;
-    sensor_h *list_accel;
+    int count;
+    sensor_h *list;
 
-    error = sensor_get_sensor_list(type_hrm, &list_hrm, &count_hrm); 				// hr
+    error = sensor_get_sensor_list(type_hrm, &list, &count); 						// hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_sensor_list error: %d", error);
     } else {
-        dlog_print(DLOG_DEBUG, LOG_TAG, "Number of sensors: %d", count_hrm);
-        free(list_hrm);
+        dlog_print(DLOG_DEBUG, LOG_TAG, "Number of sensors: %d", count);
+        free(list);
     }
 
-    error = sensor_get_sensor_list(type_accel, &list_accel, &count_accel); 			// accel
+    error = sensor_get_sensor_list(type_accel, &list, &count); 						// accel
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_sensor_list error: %d", error);
     } else {
-        dlog_print(DLOG_DEBUG, LOG_TAG, "Number of sensors: %d", count_accel);
-        free(list_accel);
+        dlog_print(DLOG_DEBUG, LOG_TAG, "Number of sensors: %d", count);
+        free(list);
     }
 
 
@@ -158,7 +162,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
 
-    // Setting min_interval;
+    // Setting min_interval
     int min_interval = 0;															// hr
     error = sensor_get_min_interval(sensor_hrm, &min_interval);
     if (error != SENSOR_ERROR_NONE) {
@@ -178,14 +182,14 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
     // Callback for sensor value change
-    error = sensor_listener_set_event_cb(listener_hrm, min_interval, on_sensor_event, user_data_hrm);		// hr
+    error = sensor_listener_set_event_cb(listener_hrm, min_interval, on_sensor_event, user_data);		// hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_event_cb error: %d", error);
         return;
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_event_cb");
 
-    error = sensor_listener_set_event_cb(listener_accel, min_interval, on_sensor_event, user_data_accel);	// accel
+    error = sensor_listener_set_event_cb(listener_accel, min_interval, on_sensor_event, user_data);		// accel
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_event_cb error: %d", error);
         return;
@@ -195,7 +199,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
     // Registering the Accuracy Changed Callback
-    error = sensor_listener_set_accuracy_cb(listener_hrm, _sensor_accuracy_changed_cb, user_data_hrm);		// hr
+    error = sensor_listener_set_accuracy_cb(listener_hrm, _sensor_accuracy_changed_cb, user_data);		// hr
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_accuracy_cb error: %d", error);
         return;
@@ -203,7 +207,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_accuracy_cb");
 
 
-    error = sensor_listener_set_accuracy_cb(listener_accel, _sensor_accuracy_changed_cb, user_data_accel);	// accel
+    error = sensor_listener_set_accuracy_cb(listener_accel, _sensor_accuracy_changed_cb, user_data);	// accel
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_accuracy_cb error: %d", error);
         return;
@@ -229,7 +233,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
 
-    // Setting sensor listener option - Always on, power-save etc.
+    // Setting sensor listener option - always on, power-save etc.
     error = sensor_listener_set_option(listener_hrm, SENSOR_OPTION_ALWAYS_ON);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_option error: %d", error);
@@ -246,7 +250,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
 
-    // start sensor
+    // Start sensors
     error = sensor_listener_start(listener_hrm);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_start error: %d", error);
@@ -263,7 +267,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
 
-    // event
+    // Read data from listners
     sensor_event_s event_hrm, event_accel;
     error = sensor_listener_read_data(listener_hrm, &event_hrm);
     if (error != SENSOR_ERROR_NONE) {
@@ -276,18 +280,6 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_read_data error: %d", error);
         return;
     }
-
-
-
-    char *name = NULL;
-    char *vendor = NULL;
-    float resolution = 0.0;
-
-    float min_hrm = 0.0;
-    float max_hrm = 220.0;
-
-    float min_accel = -19.6;
-    float max_accel = 19.6;
 
 
 
@@ -345,7 +337,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
     // Get sensor range
-    error = sensor_get_min_range(sensor_hrm, &min_hrm);								// hr
+    error = sensor_get_min_range(sensor_hrm, &min_hrm);								// hr (min&max)
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_range error: %d", error);
         return;
@@ -360,7 +352,7 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
     dlog_print(DLOG_DEBUG, LOG_TAG, "Maximum range of the sensor: %f", max_hrm);
 
 
-    error = sensor_get_min_range(sensor_accel, &min_accel);							// accel
+    error = sensor_get_min_range(sensor_accel, &min_accel);							// accel (min&max)
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_get_min_range error: %d", error);
         return;
