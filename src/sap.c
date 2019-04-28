@@ -8,7 +8,7 @@
 #define HELLO_ACC_ASPID "/sample/hello"
 
 extern int hrm_data;
-extern float accel_data[ACCLEN];
+extern float svm_accel[SVMLEN];
 extern double time_in_mill;
 
 struct priv {
@@ -44,22 +44,24 @@ static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 void on_data_received(sap_socket_h socket, unsigned short int channel_id){
 
 	unsigned int payload_length;
- 	char * msg = g_strdup_printf("%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %.0lf",
+ 	char * msg = g_strdup_printf("%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %.0lf",
  			hrm_data,
-			accel_data[0],  accel_data[1],  accel_data[2],
-			accel_data[3],  accel_data[4],  accel_data[5],
-			accel_data[6],  accel_data[7],  accel_data[8],
-			accel_data[9],  accel_data[10], accel_data[11],
-			accel_data[12], accel_data[13], accel_data[14],
-			accel_data[15], accel_data[16], accel_data[17],
-			accel_data[18], accel_data[19], accel_data[20],
-			accel_data[21], accel_data[22], accel_data[23],
-			accel_data[24], accel_data[25], accel_data[26],
-			accel_data[27], accel_data[28], accel_data[29],
+			svm_accel[0],  svm_accel[1],  svm_accel[2],
+			svm_accel[3],  svm_accel[4],  svm_accel[5],
+			svm_accel[6],  svm_accel[7],  svm_accel[8],
+			svm_accel[9],  svm_accel[10],  svm_accel[11],
+			svm_accel[12],  svm_accel[13],  svm_accel[14],
+			svm_accel[15],  svm_accel[16],  svm_accel[17],
+			svm_accel[18],  svm_accel[19],  svm_accel[20],
 			time_in_mill);
 
  	payload_length = strlen(msg);
- 	dlog_print(DLOG_INFO, LOG_TAG, "payload length : %d timestamp : %.0lf", payload_length, time_in_mill);
+ 	dlog_print(DLOG_INFO, LOG_TAG, "%f %f %f %f %f %f %f %f %f %f",
+ 			svm_accel[0],  svm_accel[1],  svm_accel[2],
+			svm_accel[3],  svm_accel[4],  svm_accel[5],
+			svm_accel[6],  svm_accel[7],  svm_accel[8],
+			svm_accel[9]);
+ 	//dlog_print(DLOG_INFO, LOG_TAG, "payload length : %d timestamp : %.0lf", payload_length, time_in_mill);
  	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);	// send the msg to the Consumer(A)
  	g_free(msg);
 }

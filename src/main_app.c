@@ -4,6 +4,10 @@
 #include <sensor.h>
 #include <string.h>
 #include <sys/time.h>
+#include <math.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 Evas_Object *GLOBAL_DEBUG_BOX;
 Evas_Object *start, *stop;
@@ -12,11 +16,19 @@ Evas_Object *event_label;
 sensor_listener_h listener_hrm, listener_accel;		// listeners for sensors
 
 extern int hrm_data;
-extern float accel_data[ACCLEN];
+extern float svm_accel[SVMLEN];
 extern double time_in_mill;
 extern void on_data_received(sap_socket_h socket, unsigned short int channel_id);
 
 int idx = 0;
+
+float getSVM(float x, float y, float z){
+	float square_x = powf(x, 2);
+	float square_y = powf(y, 2);
+	float square_z = powf(z, 2);
+
+	return sqrtf(square_x + square_y + square_z);
+}
 
 void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
 {
@@ -34,16 +46,14 @@ void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data)
     		break;
 
     case SENSOR_ACCELEROMETER:
-			if(idx < ACCLEN) {
+			if(idx < SVMLEN) {
 				if(idx == 0){
 					// convert tv_sec & tv_usec to millisecond
 					gettimeofday(&timeVal, NULL);
 					time_in_mill = (timeVal.tv_sec)*1000 + (timeVal.tv_usec)/1000;
 				}
-				accel_data[idx] = event->values[0];
-				accel_data[idx+1] = event->values[1];
-				accel_data[idx+2] = event->values[2];
-				idx += 3;
+				svm_accel[idx] = getSVM(event->values[0], event->values[1], event->values[2]);
+				idx++;
 			} else {
 				on_data_received(socket, HELLO_ACC_CHANNELID);
 				idx = 0;
@@ -217,14 +227,14 @@ void _sensor_start_cb(void *data, Evas_Object *obj, void *event_info)
 
 
     // Setting sensor interval
-    error = sensor_listener_set_interval(listener_hrm, 25);
+    error = sensor_listener_set_interval(listener_hrm, 5000);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error);
         return;
     }
     dlog_print(DLOG_DEBUG, LOG_TAG, "sensor_listener_set_intervals");
 
-    error = sensor_listener_set_interval(listener_accel, 25);
+    error = sensor_listener_set_interval(listener_accel, 50);
     if (error != SENSOR_ERROR_NONE) {
         dlog_print(DLOG_ERROR, LOG_TAG, "sensor_listener_set_interval error: %d", error);
         return;
