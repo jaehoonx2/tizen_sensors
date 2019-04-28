@@ -5,9 +5,6 @@
 #include <string.h>
 #include <sys/time.h>
 #include <math.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <stdlib.h>
 
 Evas_Object *GLOBAL_DEBUG_BOX;
 Evas_Object *start, *stop;
