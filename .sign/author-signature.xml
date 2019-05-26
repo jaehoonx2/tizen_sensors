@@ -4,7 +4,7 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="bin%2Fsensorapp">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>WtbcX0NuZp5ySZ4vO/7CFh8AVAmbPM3TFoqpRCha/Hw=</DigestValue>
+<DigestValue>aHZP0vRS1Ey3BVeQJVuFUhyJK7VOz1N6Ipj+R79KyYY=</DigestValue>
 </Reference>
 <Reference URI="lib%2F.gitkeep">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -14,13 +14,13 @@
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
 <DigestValue>pUs1jpBt6Tbiu2y1ly5ePl1YOsvhP2mdjPilk9N1LKk=</DigestValue>
 </Reference>
-<Reference URI="shared%2Fres%2Fbasicui2.png">
+<Reference URI="shared%2Fres%2Felderly.png">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>Sq2eZSE/iMyn5vW6lybdxUdP1SSUHj35OBf617jNhI8=</DigestValue>
+<DigestValue>jaJrd49WmTtkavtOlZ+6qvGN2LKHxIfBNTcOzxX6DnQ=</DigestValue>
 </Reference>
 <Reference URI="tizen-manifest.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>zvKEFS4pa6TOUL53bjWpe6JgnVQxiwugIQxWV1b54jE=</DigestValue>
+<DigestValue>wlzWrHBCmtjR0jNzr7UcJoJ5WrJnGXEhn2VIsjR752o=</DigestValue>
 </Reference>
 <Reference URI="#prop">
 <Transforms>
@@ -31,11 +31,11 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-fWjKDguTrEsozVlsYWXWxwWR8YnOLl0Z+odde43rYSQD+SeqCWj3daFw7WCNL4RbEczf9dnJlpl7
-k1Ajw5Q/Rptd3D7PFntIxFNZPCBXcYFszubHNUFrKhVzp8ZmCmIsDDUTiNpIoouy5aYLQCd8jCWg
-hlmcm9lQ6rohOE4KoBL7FFmy5ybmDswOGKduFvzX77I0CEQCSBAsAknT1i+8dpP86kGPEy2eDJwZ
-Is5K+NgDMJpfnVGHeQi345C+GEGHuscg5IcDkhbaZ0rOaE/D4th2jrz6Rw/t3pilGPM9a3IXnCTJ
-ADpLncYfIPa30pjZtqiUDfBOTYBSBFvIGdBE5g==
+e6RW9bHQEMwtTCcNQQBp1YBKbuBmvFG9/P0DDdVvAnzBWWgiW+iMWG+83pPTfAROQ6tvvjGL27qF
+U5Svde3O+r7mzpVhB1mbJc4ij2bNMEcNn5sBezTevAzIW/6V3ajLCOXITiYCeYuDL1g4VG1GFKc0
+ekuXbGejXinOwS3yzY45IJGM4Z0boHcIXR5HE5etNJMDaehTj8iiXcmCkrPXp2WW0oWTcLKX59YT
+GX09CZ7CevnmgwJv9L8XpPzTcgOq1lvck/E1dsXLBMSV7DEBI3jUkEcHeR1NV+UMFIHLVF/pmgI0
+fLfh1vEk2zng7DR+zyJ6FdDfeT6hxfTL0jr5Ig==
 </SignatureValue>
 <KeyInfo>
 <X509Data>
