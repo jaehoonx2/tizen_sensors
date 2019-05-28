@@ -52,16 +52,10 @@ void on_data_received(sap_socket_h socket, unsigned short int channel_id){
 			svm_accel[9],  svm_accel[10],  svm_accel[11],
 			svm_accel[12],  svm_accel[13],  svm_accel[14],
 			svm_accel[15],  svm_accel[16],  svm_accel[17],
-			svm_accel[18],  svm_accel[19],  svm_accel[20],
-			time_in_mill);
+			svm_accel[18],  svm_accel[19],	time_in_mill);
 
  	payload_length = strlen(msg);
- 	dlog_print(DLOG_INFO, LOG_TAG, "%f %f %f %f %f %f %f %f %f %f",
- 			svm_accel[0],  svm_accel[1],  svm_accel[2],
-			svm_accel[3],  svm_accel[4],  svm_accel[5],
-			svm_accel[6],  svm_accel[7],  svm_accel[8],
-			svm_accel[9]);
- 	//dlog_print(DLOG_INFO, LOG_TAG, "payload length : %d timestamp : %.0lf", payload_length, time_in_mill);
+ 	dlog_print(DLOG_INFO, LOG_TAG, "payload length : %d timestamp : %.0lf", payload_length, time_in_mill);
  	sap_socket_send_data(priv_data.socket, HELLO_ACC_CHANNELID, payload_length, msg);	// send the msg to the Consumer(A)
  	g_free(msg);
 }
