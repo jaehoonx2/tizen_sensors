@@ -9,6 +9,9 @@ This project is owned by jaehoonx2 and kimyoungeun
 
 # Getting Started
 * To send data to Android app, Tizen wearable and phone should be connected each other via Bluetooth.
+* It is posted on my blog that how to install Tizen Application, which is written by Korean.
+  URL is as follow.
+  https://jaehoonx2.tistory.com
 * Samsung Watch App, provided by Samsung Galaxy App Store, is needed to be installed first on your android phone.
 * Also, LonleyElderly App should be installed in your android smartphone phone.
   URL is as follow.
