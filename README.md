@@ -1,5 +1,6 @@
 # tizen_sensors
-* A Tizen wearable application that retrieves sensors data from a device and transfers into Android application (HelloAccessory Consumer)
+* A Tizen wearable application that retrieves sensors data from a device and transfers into Android application (LonelyElderly),
+* and the android application detects emergency situation using the sensor data.
 * Samsung Gear Fit2 Pro and Samsung Gear S2 are used in the project.
 * However, you may use other Tizen wearable devices if the devices support Tizen 2.3.1 at least.
 
@@ -8,9 +9,10 @@ This project is owned by jaehoonx2 and kimyoungeun
 
 # Getting Started
 * To send data to Android app, Tizen wearable and phone should be connected each other via Bluetooth.
-* Also, HelloAccessory Consumer(Android) App should be installed in your phone.
+* Samsung Watch App, provided by Samsung Galaxy App Store, is needed to be installed first on your android phone.
+* Also, LonleyElderly App should be installed in your android smartphone phone.
   URL is as follow.
-  https://developer.samsung.com/gear/develop/samples/companion/hello-native
+  https://github.com/jaehoonx2/LonelyElderly
 
 # References (URL)
 * https://developer.samsung.com/gear/develop/samples/companion/hello-native   - Samsung Accessory SDK
